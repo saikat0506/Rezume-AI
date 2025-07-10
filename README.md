@@ -1,13 +1,12 @@
-````markdown
 # AI Resume Tailor
 
 This application helps you tailor your resume to specific job descriptions and titles using Google's Gemini AI. It also provides an ATS (Applicant Tracking System) compatibility score and a humanized review of your tailored resume, highlighting the changes made.
 
-## User Manual: Step-by-Step Guide
+## User Manual
 
 Follow these steps to set up and use the AI Resume Tailor locally.
 
-### 1. Prerequisites
+## 1. Prerequisites
 
 Before you begin, ensure you have the following installed:
 
@@ -15,18 +14,17 @@ Before you begin, ensure you have the following installed:
 * **pip**: Python's package installer (usually comes with Python).
 * **Google Gemini API Key**: You'll need an API key from the Google AI Studio or Google Cloud Console.
 
-### 2. Local Setup
+## 2. Local Setup
 
 To run the application on your local machine:
 
-**Step 2.1: Clone the Repository**
+### Step 2.1: Clone the Repository
 
 First, clone your project repository from GitHub (or wherever you've hosted it) to your local machine.
 
 ```bash
 git clone <your-repository-url>
 cd your-resume-tailor-app/ # Navigate into your project directory
-````
 
 (Replace `<your-repository-url>` with the actual URL of your Git repository and `your-resume-tailor-app/` with your project's folder name).
 
