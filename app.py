@@ -340,4 +340,3 @@ if st.button("Tailor My Resume 🚀"):
         st.warning("Please upload your resume, enter a job title, and paste the job description to proceed.")
 
 st.markdown("---")
-st.markdown("Developed with ❤️ using Streamlit and Google Gemini API.")
