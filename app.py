@@ -159,7 +159,7 @@ async def get_resume_review_and_score(tailored_resume: str, job_title: str, job_
     JSON Output:
     """
     with st.spinner("Analyzing tailored resume for ATS score and human review..."):
-        review_data = await call_gemini_api(prompt, temperature=0.5, max_output_tokens=500, response_schema=review_schema)
+        review_data = await call_gemini_api(prompt, temperature=0.3, max_output_tokens=2000, response_schema=review_schema)
         return review_data
 
 # --- Function to generate HTML diff ---
