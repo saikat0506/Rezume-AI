@@ -53,7 +53,7 @@ async def call_gemini_api(prompt_text: str, temperature: float = 0.7, max_output
         'Content-Type': 'application/json'
     }
 
-    # st.write(f"Attempting to call Gemini API at: {GEMINI_API_URL}") # Debugging
+    st.write(f"Attempting to call Gemini API at: {GEMINI_API_URL}") # Debugging
     # Note: Do NOT print GEMINI_API_KEY directly in production logs for security reasons.
 
     try:
@@ -131,16 +131,17 @@ async def get_resume_review_and_score(tailored_resume: str, job_title: str, job_
     }
 
     prompt = f"""
-    You are a sophisticated AI system designed to evaluate resumes based on ATS (Applicant Tracking System) scoring criteria. 
-    Your task is to review the following TAILORED resume against the provided Job Title and Job Description .
+    You are an expert ATS (Applicant Tracking System) and a human recruiter.
+    Your task is to review the following TAILORED resume against the provided Job Title and Job Description.
 
-    provide a comprehensive score out of 100,A higher score means better keyword matching and formatting for ATS. 
-    Then, provide a human interviewer's perspective on the resume against the job role and description :
-        - Detailing the strengths and weaknesses of the candidate's application.
-        - highlighting potential questions and concerns that may arise during an interview.
-        - Overall readability and clarity.
-        - How well it highlights relevant experience and skills for the specific job.
-        - Any suggestions for further improvement from a human perspective.  Ensure your responses are formal, detailed, and tailored to advanced users seeking in-depth analysis. 
+    Provide a score out of 100 for its ATS compatibility. A higher score means better keyword matching and formatting for ATS.
+    Then, provide a humanized review, focusing on:
+    - Overall readability and clarity.
+    - Impact and strength of language.
+    - How well it highlights relevant experience and skills for the specific job.
+    - Any suggestions for further improvement from a human perspective.
+    - Ensure the resume is highly ATS friendly AND humanized.
+
     Respond ONLY with a JSON object containing 'ats_score' (integer out of 100) and 'review' (string).
 
     ---
@@ -159,7 +160,7 @@ async def get_resume_review_and_score(tailored_resume: str, job_title: str, job_
     JSON Output:
     """
     with st.spinner("Analyzing tailored resume for ATS score and human review..."):
-        review_data = await call_gemini_api(prompt, temperature=0.3, max_output_tokens=2000, response_schema=review_schema)
+        review_data = await call_gemini_api(prompt, temperature=0.5, max_output_tokens=500, response_schema=review_schema)
         return review_data
 
 # --- Function to generate HTML diff ---
@@ -386,7 +387,6 @@ if st.button("Tailor My Resume 🚀"):
                         """,
                         unsafe_allow_html=True
                     )
-                    
                 else:
                     st.warning("Could not generate ATS score and review. Please try again.")
 
