@@ -279,15 +279,6 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# Initialize session state variables if they don't exist
-if 'tailored_resume' not in st.session_state:
-    st.session_state.tailored_resume = None
-if 'review_data' not in st.session_state:
-    st.session_state.review_data = None
-if 'original_resume_content' not in st.session_state:
-    st.session_state.original_resume_content = None
-if 'extracted_keywords_display' not in st.session_state:
-    st.session_state.extracted_keywords_display = None
 
 st.title("✨ AI Resume Tailor")
 st.markdown("Upload your resume (TXT or PDF), provide a job title and description, and let AI tailor your resume for the perfect fit!")
@@ -395,44 +386,9 @@ if st.button("Tailor My Resume 🚀"):
                         """,
                         unsafe_allow_html=True
                     )
-                    # --- Step 3: Get ATS Score and Review ---
-                review_data = asyncio.run(get_resume_review_and_score(tailored_resume, job_title, job_description))
-
-                if review_data and 'ats_score' in review_data and 'review' in review_data:
-                    st.subheader("Resume Review & ATS Score 📊")
-                    st.markdown(
-                        f"""
-                        <div class="score-box">
-                            <p><strong>ATS Compatibility Score:</strong> <span class="score-text">{review_data['ats_score']}/100</span></p>
-                            <p><strong>Humanized Review:</strong></p>
-                            <p>{review_data['review']}</p>
-                        </div>
-                        """,
-                        unsafe_allow_html=True
-                    )
-
-                    # --- NEW ADDITION: Download Resume Review and Score ---
-                    review_output_text = f"--- Resume Review and ATS Score ---\n\n" \
-                                        f"ATS Compatibility Score: {review_data['ats_score']}/100\n\n" \
-                                        f"Humanized Review:\n{review_data['review']}\n\n" \
-                                        f"--- End of Review ---"
-
-                    st.download_button(
-                        label="Download Review & Score",
-                        data=review_output_text,
-                        file_name="resume_review_and_score.txt",
-                        mime="text/plain"
-                    )
-                    # You could also offer a JSON download option if preferred:
-                    # st.download_button(
-                    #     label="Download Review & Score (JSON)",
-                    #     data=json.dumps(review_data, indent=4),
-                    #     file_name="resume_review_and_score.json",
-                    #     mime="application/json"
-                    # )
-
+                    
                 else:
-                    st.warning("Could not generate ATS score and review. Please try again.")                    
+                    st.warning("Could not generate ATS score and review. Please try again.")
 
             else:
                 st.error("Failed to tailor resume. Please try again.")
