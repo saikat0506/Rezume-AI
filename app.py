@@ -53,7 +53,7 @@ async def call_gemini_api(prompt_text: str, temperature: float = 0.7, max_output
         'Content-Type': 'application/json'
     }
 
-    st.write(f"Attempting to call Gemini API at: {GEMINI_API_URL}") # Debugging
+    # st.write(f"Attempting to call Gemini API at: {GEMINI_API_URL}") # Debugging
     # Note: Do NOT print GEMINI_API_KEY directly in production logs for security reasons.
 
     try:
@@ -386,8 +386,44 @@ if st.button("Tailor My Resume 🚀"):
                         """,
                         unsafe_allow_html=True
                     )
+                    # --- Step 3: Get ATS Score and Review ---
+                review_data = asyncio.run(get_resume_review_and_score(tailored_resume, job_title, job_description))
+
+                if review_data and 'ats_score' in review_data and 'review' in review_data:
+                    st.subheader("Resume Review & ATS Score 📊")
+                    st.markdown(
+                        f"""
+                        <div class="score-box">
+                            <p><strong>ATS Compatibility Score:</strong> <span class="score-text">{review_data['ats_score']}/100</span></p>
+                            <p><strong>Humanized Review:</strong></p>
+                            <p>{review_data['review']}</p>
+                        </div>
+                        """,
+                        unsafe_allow_html=True
+                    )
+
+                    # --- NEW ADDITION: Download Resume Review and Score ---
+                    review_output_text = f"--- Resume Review and ATS Score ---\n\n" \
+                                        f"ATS Compatibility Score: {review_data['ats_score']}/100\n\n" \
+                                        f"Humanized Review:\n{review_data['review']}\n\n" \
+                                        f"--- End of Review ---"
+
+                    st.download_button(
+                        label="Download Review & Score",
+                        data=review_output_text,
+                        file_name="resume_review_and_score.txt",
+                        mime="text/plain"
+                    )
+                    # You could also offer a JSON download option if preferred:
+                    # st.download_button(
+                    #     label="Download Review & Score (JSON)",
+                    #     data=json.dumps(review_data, indent=4),
+                    #     file_name="resume_review_and_score.json",
+                    #     mime="application/json"
+                    # )
+
                 else:
-                    st.warning("Could not generate ATS score and review. Please try again.")
+                    st.warning("Could not generate ATS score and review. Please try again.")                    
 
             else:
                 st.error("Failed to tailor resume. Please try again.")
