@@ -2,6 +2,8 @@
 
 This application helps you tailor your resume to specific job descriptions and titles using Google's Gemini AI. It also provides an ATS (Applicant Tracking System) compatibility score and a humanized review of your tailored resume, highlighting the changes made.
 
+try the website at : https://rezume-ai.streamlit.app/
+
 ## User Manual
 
 Follow these steps to set up and use the AI Resume Tailor locally.
