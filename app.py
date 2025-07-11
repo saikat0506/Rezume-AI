@@ -18,9 +18,11 @@ if not GEMINI_API_KEY:
     st.error("Gemini API Key not found. Please set the 'GEMINI_API_KEY' environment variable in your deployment settings.")
     st.info("If running locally, ensure it's set in your shell or .env file.")
     st.stop() # Stop the app execution if the key is missing
+else:
+    st.success("Gemini API Key loaded successfully.") # This confirms the key is being picked up
 
 
-GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent"
+GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent"
 
 # --- Function to call Gemini API ---
 async def call_gemini_api(prompt_text: str, temperature: float = 0.7, max_output_tokens: int = 2048, response_schema: dict = None):
@@ -51,13 +53,15 @@ async def call_gemini_api(prompt_text: str, temperature: float = 0.7, max_output
         'Content-Type': 'application/json'
     }
 
+    st.write(f"Attempting to call Gemini API at: {GEMINI_API_URL}") # Debugging
+    # Note: Do NOT print GEMINI_API_KEY directly in production logs for security reasons.
 
     try:
         response = requests.post(f"{GEMINI_API_URL}?key={GEMINI_API_KEY}", json=payload, headers=headers)
         response.raise_for_status() # Raises HTTPError for bad responses (4xx or 5xx)
         result = response.json()
 
-        # st.write(f"Gemini API raw response status: {response.status_code}") # Debugging
+        st.write(f"Gemini API raw response status: {response.status_code}") # Debugging
         # st.write(f"Gemini API raw response body: {result}") # For detailed debugging, but can be verbose
 
         if result.get("candidates") and len(result["candidates"]) > 0 and \
@@ -100,7 +104,7 @@ async def extract_keywords(job_description: str) -> str:
     Uses Gemini API to extract key skills and requirements from a job description.
     """
     prompt = f"""
-    Extract the most important 5-15 keywords, key skills, and essential requirements from the following job description.
+    Extract the most important 10-15 keywords, key skills, and essential requirements from the following job description.
     List them as a comma-separated string. Do not include any other text or conversational phrases.
 
     Job Description:
@@ -121,26 +125,24 @@ async def get_resume_review_and_score(tailored_resume: str, job_title: str, job_
         "type": "OBJECT",
         "properties": {
             "ats_score": {"type": "INTEGER", "description": "ATS compatibility score out of 100"},
-            "review": {"type": "STRING", "description": "Review of the resume"}
+            "review": {"type": "STRING", "description": "Humanized review of the resume"}
         },
         "required": ["ats_score", "review"]
     }
 
     prompt = f"""
+    You are an expert ATS (Applicant Tracking System) and a human recruiter.
+    Your task is to review the following TAILORED resume against the provided Job Title and Job Description.
+
+    Provide a score out of 100 for its ATS compatibility. A higher score means better keyword matching and formatting for ATS.
+    Then, provide a humanized review, focusing on:
+    - Overall readability and clarity.
+    - Impact and strength of language.
+    - How well it highlights relevant experience and skills for the specific job.
+    - Any suggestions for further improvement from a human perspective.
+    - Ensure the resume is highly ATS friendly AND humanized.
 
     Respond ONLY with a JSON object containing 'ats_score' (integer out of 100) and 'review' (string).
-    
-    You are a sophisticated AI system designed to evaluate resumes based on ATS (Applicant Tracking System) scoring criteria. 
-    Your task is to review the following TAILORED resume against the provided Job Title and Job Description .
-
-    provide a comprehensive score out of 100,A higher score means better keyword matching for ATS. 
-    Then, provide a human interviewer's perspective on the resume against the Job Title and Job Description :
-        - Detailing the strengths and weaknesses of the candidate's application.
-        - highlighting potential questions and concerns that may arise during an interview.
-        - Overall readability and clarity.
-        - How well it highlights relevant experience and skills for the Job Title and Job Description.
-        - Any suggestions for further improvement from a human perspective.  
-        Ensure your responses are formal, detailed, and tailored to advanced users seeking in-depth analysis. 
 
     ---
     **Tailored Resume:**
