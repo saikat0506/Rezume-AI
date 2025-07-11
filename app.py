@@ -279,6 +279,15 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
+# Initialize session state variables if they don't exist
+if 'tailored_resume' not in st.session_state:
+    st.session_state.tailored_resume = None
+if 'review_data' not in st.session_state:
+    st.session_state.review_data = None
+if 'original_resume_content' not in st.session_state:
+    st.session_state.original_resume_content = None
+if 'extracted_keywords_display' not in st.session_state:
+    st.session_state.extracted_keywords_display = None
 
 st.title("✨ AI Resume Tailor")
 st.markdown("Upload your resume (TXT or PDF), provide a job title and description, and let AI tailor your resume for the perfect fit!")
