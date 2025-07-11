@@ -100,7 +100,7 @@ async def extract_keywords(job_description: str) -> str:
     Uses Gemini API to extract key skills and requirements from a job description.
     """
     prompt = f"""
-    Extract the most important 20-35 keywords, key skills, and essential requirements from the following job description.
+    Extract the most important 5-15 keywords, key skills, and essential requirements from the following job description.
     List them as a comma-separated string. Do not include any other text or conversational phrases.
 
     Job Description:
