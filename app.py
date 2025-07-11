@@ -18,9 +18,9 @@ if not GEMINI_API_KEY:
     st.error("Gemini API Key not found. Please set the 'GEMINI_API_KEY' environment variable in your deployment settings.")
     st.info("If running locally, ensure it's set in your shell or .env file.")
     st.stop()  # Stop the app execution if the key is missing
-else:
-    # This confirms the key is being picked up
-    st.success("Gemini API Key loaded successfully.")
+# else:
+#     # This confirms the key is being picked up
+#     st.success("Gemini API Key loaded successfully.")
 
 
 GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent"
@@ -57,7 +57,7 @@ async def call_gemini_api(prompt_text: str, temperature: float = 0.7, max_output
     }
 
     # Debugging
-    st.write(f"Attempting to call Gemini API at: {GEMINI_API_URL}")
+    # st.write(f"Attempting to call Gemini API at: {GEMINI_API_URL}")
     # Note: Do NOT print GEMINI_API_KEY directly in production logs for security reasons.
 
     try:
