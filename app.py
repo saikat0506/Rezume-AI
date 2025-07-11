@@ -168,18 +168,95 @@ st.set_page_config(page_title="AI Resume Tailor", layout="centered")
 # Set background color to black and text to white
 st.markdown("""
 <style>
+    /* Ensure the main app container is black */
     .stApp {
-        background-color: black;
-        color: white;
+        background-color: black !important;
+        color: white !important;
     }
-    /* You might want to style other elements as well to ensure readability */
-    .stTextInput > div > div > input, .stTextArea > div > div > textarea {
-        color: white;
-        background-color: #333;
+
+    /* Target specific Streamlit elements for consistent styling */
+    .stTextInput > div > div > input,
+    .stTextArea > div > div > textarea,
+    .stFileUploader > div > div > button { /* Removed .stSelectbox from here */
+        color: white !important;
+        background-color: #333 !important; /* Grey for text areas/inputs */
+        border: 1px solid #555 !important; /* Default border */
+        border-radius: 5px !important;
     }
-    .stMarkdown, .stButton > button {
-        color: white;
+
+    /* Text color for labels and general markdown */
+    .stMarkdown,
+    .stTextInput label,
+    .stTextArea label,
+    .stFileUploader label,
+    .stSelectbox label, /* Selectbox label should still be white */
+    .stButton > button {
+        color: white !important;
     }
+
+    /* Hover/Focus effect for text inputs and text areas */
+    .stTextInput > div > div > input:hover,
+    .stTextInput > div > div > input:focus,
+    .stTextArea > div > div > textarea:hover,
+    .stTextArea > div > div > textarea:focus {
+        border: 1px solid red !important; /* Red border on hover/focus */
+        box-shadow: 0 0 0 0.2rem rgba(255, 0, 0, 0.25) !important; /* Optional: subtle red glow */
+    }
+
+    /* Style for buttons */
+    .stButton > button {
+        background-color: #4CAF50 !important; /* Example green button */
+        color: white !important;
+        border: none !important;
+        border-radius: 5px !important;
+        padding: 10px 20px !important;
+        cursor: pointer !important;
+        transition: background-color 0.3s ease !important;
+    }
+
+    .stButton > button:hover {
+        background-color: #45a049 !important; /* Darker green on hover */
+    }
+
+    /* Style for the score box */
+    .score-box {
+        background-color: #2E3036; /* Darker grey for the box */
+        padding: 20px;
+        border-radius: 8px;
+        border: 1px solid #555555;
+        margin-top: 20px;
+    }
+
+    .score-box p {
+        margin-bottom: 10px;
+    }
+
+    .score-box strong {
+        color: #ADD8E6; /* Light blue for strong text */
+    }
+
+    .score-text {
+        color: #FFD700; /* Gold for the score number */
+        font-size: 1.2em;
+        font-weight: bold;
+    }
+
+    /* Info and Warning boxes */
+    .stAlert {
+        background-color: #333 !important;
+        color: white !important;
+        border-left: 5px solid;
+    }
+    .stAlert.info {
+        border-color: #2196F3 !important; /* Blue for info */
+    }
+    .stAlert.warning {
+        border-color: #ff9800 !important; /* Orange for warning */
+    }
+    .stAlert.error {
+        border-color: #f44336 !important; /* Red for error */
+    }
+
 </style>
 """, unsafe_allow_html=True)
 
