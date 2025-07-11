@@ -3,8 +3,10 @@ import json
 import asyncio
 import os
 import io
-import difflib # For highlighting changes
+import difflib
 from pdfminer.high_level import extract_text # For PDF text extraction
+# If you switched to pypdf, uncomment the line below and comment the pdfminer.six line
+# from pypdf import PdfReader
 
 # --- Configuration for Gemini API ---
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
@@ -60,7 +62,7 @@ async def call_gemini_api(prompt_text: str, temperature: float = 0.7, max_output
                     return json.loads(generated_content)
                 except json.JSONDecodeError:
                     st.error("Failed to parse JSON response from Gemini API.")
-                    print(f"Raw non-JSON response: {generated_content}") # For debugging
+                    print(f"Raw non-JSON response: {generated_content}")
                     return None
             else:
                 return generated_content
@@ -150,7 +152,7 @@ def generate_diff_html(text1: str, text2: str) -> str:
     diff = d.compare(text1.splitlines(keepends=True), text2.splitlines(keepends=True))
 
     html_diff = []
-    html_diff.append('<div style="font-family: monospace; white-space: pre-wrap; background-color: #f8f8f8; padding: 10px; border-radius: 8px; overflow-x: auto;">')
+    html_diff.append('<div style="font-family: \'Inter\', sans-serif; white-space: pre-wrap; background-color: #f8f8f8; padding: 10px; border-radius: 8px; overflow-x: auto; border: 1px solid #ddd;">')
     for line in diff:
         if line.startswith('+ '):
             html_diff.append(f'<span style="background-color: #e6ffe6; color: #008000;">{line}</span>') # Green for additions
@@ -167,54 +169,113 @@ st.set_page_config(page_title="AI Resume Tailor", layout="centered")
 
 st.markdown(
     """
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
     <style>
+    html, body, [class*="st-"] {
+        font-family: 'Inter', sans-serif;
+        color: #333;
+    }
     .main {
-        background-color: #f0f2f6;
-        padding: 20px;
-        border-radius: 10px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        background-color: #ffffff; /* Lighter background */
+        padding: 30px;
+        border-radius: 15px;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1); /* Stronger shadow */
+        max-width: 900px; /* Max width for better readability */
+        margin: auto;
+    }
+    h1 {
+        color: #2c3e50; /* Darker heading */
+        text-align: center;
+        font-weight: 700;
+        margin-bottom: 20px;
+        font-size: 2.5em; /* Bigger heading */
+    }
+    h2, h3 {
+        color: #34495e; /* Slightly lighter heading */
+        margin-top: 30px;
+        border-bottom: 2px solid #ecf0f1; /* Subtle separator */
+        padding-bottom: 10px;
     }
     .stButton>button {
-        background-color: #4CAF50;
+        background-color: #3498db; /* Blue for action */
         color: white;
-        border-radius: 8px;
-        padding: 10px 20px;
-        font-size: 16px;
+        border-radius: 10px; /* More rounded */
+        padding: 12px 25px;
+        font-size: 18px;
         border: none;
         cursor: pointer;
-        transition: background-color 0.3s ease;
+        transition: background-color 0.3s ease, transform 0.2s ease;
+        width: 100%; /* Full width button */
+        font-weight: 600;
+        letter-spacing: 0.5px;
     }
     .stButton>button:hover {
-        background-color: #45a049;
+        background-color: #2980b9; /* Darker blue on hover */
+        transform: translateY(-2px); /* Slight lift effect */
     }
     .stTextInput>div>div>input, .stTextArea>div>div>textarea, .stSelectbox>div>div {
-        border-radius: 8px;
-        border: 1px solid #ccc;
-        padding: 10px;
+        border-radius: 10px;
+        border: 1px solid #dcdcdc; /* Lighter border */
+        padding: 12px;
+        box-shadow: inset 0 1px 3px rgba(0,0,0,0.05); /* Inner shadow */
+        transition: border-color 0.3s ease;
+    }
+    .stTextInput>div>div>input:focus, .stTextArea>div>div>textarea:focus, .stSelectbox>div>div:focus {
+        border-color: #3498db; /* Highlight on focus */
+        outline: none;
     }
     .stFileUploader>div>div>button {
-        background-color: #007bff;
+        background-color: #2ecc71; /* Green for upload */
         color: white;
-        border-radius: 8px;
-        padding: 10px 15px;
-        font-size: 14px;
+        border-radius: 10px;
+        padding: 12px 20px;
+        font-size: 16px;
         border: none;
+        transition: background-color 0.3s ease;
+        font-weight: 500;
     }
     .stFileUploader>div>div>button:hover {
-        background-color: #0056b3;
+        background-color: #27ae60; /* Darker green on hover */
     }
     .score-box {
-        background-color: #e0f7fa; /* Light blue */
-        border-left: 5px solid #00bcd4; /* Teal border */
-        padding: 15px;
-        margin-top: 20px;
-        border-radius: 8px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        background-color: #e8f8f5; /* Very light teal */
+        border-left: 6px solid #1abc9c; /* Stronger teal border */
+        padding: 20px;
+        margin-top: 25px;
+        border-radius: 12px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.08); /* More prominent shadow */
     }
     .score-text {
-        font-size: 2em;
-        font-weight: bold;
-        color: #00796b; /* Darker teal */
+        font-size: 2.8em; /* Larger score */
+        font-weight: 700;
+        color: #16a085; /* Darker teal */
+        text-align: center;
+        display: block; /* Ensures it takes full width for centering */
+        margin-bottom: 10px;
+    }
+    .stInfo {
+        background-color: #d9edf7; /* Light blue for info */
+        border-left: 5px solid #3498db;
+        color: #31708f;
+        border-radius: 8px;
+        padding: 10px;
+    }
+    .stWarning {
+        background-color: #fcf8e3; /* Light yellow for warning */
+        border-left: 5px solid #f39c12;
+        color: #8a6d3b;
+        border-radius: 8px;
+        padding: 10px;
+    }
+    .stError {
+        background-color: #f2dede; /* Light red for error */
+        border-left: 5px solid #e74c3c;
+        color: #a94442;
+        border-radius: 8px;
+        padding: 10px;
+    }
+    .stSpinner > div > div {
+        color: #3498db; /* Spinner color */
     }
     </style>
     """,
@@ -222,21 +283,29 @@ st.markdown(
 )
 
 st.title("✨ AI Resume Tailor")
-st.markdown("Upload your resume (TXT or PDF), provide a job title and description, and let AI tailor your resume for the perfect fit!")
+st.markdown("### Optimize your resume for the perfect job fit with AI-powered insights.")
 
-# Input fields
-uploaded_file = st.file_uploader("Upload your Resume (TXT or PDF file)", type=["txt", "pdf"])
-job_title = st.text_input("Job Title", placeholder="e.g., Senior Software Engineer")
+# Using columns for better layout of inputs
+col1, col2 = st.columns([1, 1])
+
+with col1:
+    uploaded_file = st.file_uploader("Upload your Resume (TXT or PDF file)", type=["txt", "pdf"])
+    job_title = st.text_input("Job Title", placeholder="e.g., Senior Software Engineer")
+
+with col2:
+    tailoring_style = st.selectbox(
+        "Choose Tailoring Style:",
+        ("Standard", "Concise", "Detailed"),
+        help="Standard: Balanced changes. Concise: Focus on brevity. Detailed: More elaborate, comprehensive changes."
+    )
+    # Placeholder to align layout, or you can add another input here
+    st.markdown("---") # Visual separator
+
 job_description = st.text_area("Job Description", height=200, placeholder="Paste the full job description here...")
 
-# Tailoring Style Option
-tailoring_style = st.selectbox(
-    "Choose Tailoring Style:",
-    ("Standard", "Concise", "Detailed"),
-    help="Standard: Balanced changes. Concise: Focus on brevity. Detailed: More elaborate, comprehensive changes."
-)
 
 # Tailor button
+st.markdown("---") # Separator before the action button
 if st.button("Tailor My Resume 🚀"):
     if uploaded_file is not None and job_title and job_description:
         resume_content = ""
@@ -244,6 +313,12 @@ if st.button("Tailor My Resume 🚀"):
             if uploaded_file.type == "text/plain":
                 resume_content = uploaded_file.read().decode("utf-8")
             elif uploaded_file.type == "application/pdf":
+                # If you switched to pypdf, use this block:
+                # reader = PdfReader(io.BytesIO(uploaded_file.read()))
+                # resume_content = ""
+                # for page in reader.pages:
+                #     resume_content += page.extract_text() or ""
+                # If using pdfminer.six, use this block:
                 resume_content = extract_text(io.BytesIO(uploaded_file.read()))
             else:
                 st.error("Unsupported file type. Please upload a TXT or PDF file.")
@@ -255,7 +330,7 @@ if st.button("Tailor My Resume 🚀"):
                 st.warning("Could not extract keywords. Proceeding with general tailoring.")
                 keywords_instruction = ""
             else:
-                st.info(f"Extracted Keywords: {extracted_keywords}")
+                st.info(f"Extracted Keywords: **{extracted_keywords}**")
                 keywords_instruction = f"Ensure the tailored resume highlights these specific keywords and phrases: {extracted_keywords}. "
 
             # --- Step 2: Tailor Resume ---
@@ -340,3 +415,4 @@ if st.button("Tailor My Resume 🚀"):
         st.warning("Please upload your resume, enter a job title, and paste the job description to proceed.")
 
 st.markdown("---")
+st.markdown("Developed with ❤️ using Streamlit and Google Gemini API.")
