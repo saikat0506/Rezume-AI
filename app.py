@@ -5,6 +5,7 @@ import os
 import io
 import difflib # For highlighting changes
 from pdfminer.high_level import extract_text # For PDF text extraction
+import requests # Moved import to the top
 
 # --- Configuration for Gemini API ---
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
@@ -19,7 +20,7 @@ GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini
 async def call_gemini_api(prompt_text: str, temperature: float = 0.7, max_output_tokens: int = 2048, response_schema: dict = None):
     """
     Makes an asynchronous call to the Gemini API to generate content.
-    Optionally accepts a response_schema for structured output.
+    Oftenly accepts a response_schema for structured output.
     """
     payload = {
         "contents": [
@@ -45,7 +46,6 @@ async def call_gemini_api(prompt_text: str, temperature: float = 0.7, max_output
     }
 
     try:
-        import requests
         response = requests.post(f"{GEMINI_API_URL}?key={GEMINI_API_KEY}", json=payload, headers=headers)
         response.raise_for_status()
         result = response.json()
@@ -150,14 +150,14 @@ def generate_diff_html(text1: str, text2: str) -> str:
     diff = d.compare(text1.splitlines(keepends=True), text2.splitlines(keepends=True))
 
     html_diff = []
-    html_diff.append('<div style="font-family: monospace; white-space: pre-wrap; background-color: #f8f8f8; padding: 10px; border-radius: 8px; overflow-x: auto;">')
+    html_diff.append('<div style="font-family: monospace; white-space: pre-wrap; background-color: #2E3036; padding: 10px; border-radius: 8px; overflow-x: auto; border: 1px solid #555555;">')
     for line in diff:
         if line.startswith('+ '):
-            html_diff.append(f'<span style="background-color: #e6ffe6; color: #008000;">{line}</span>') # Green for additions
+            html_diff.append(f'<span style="background-color: #2F4F2F; color: #90EE90;">{line}</span>') # Darker Green for additions
         elif line.startswith('- '):
-            html_diff.append(f'<span style="background-color: #ffe6e6; color: #ff0000;">{line}</span>') # Red for deletions
+            html_diff.append(f'<span style="background-color: #4F2F2F; color: #FFB6C1;">{line}</span>') # Darker Red for deletions
         else:
-            html_diff.append(f'<span>{line}</span>') # No change
+            html_diff.append(f'<span style="color: #E0E0E0;">{line}</span>') # Light grey for no change
     html_diff.append('</div>')
     return "".join(html_diff)
 
@@ -165,61 +165,24 @@ def generate_diff_html(text1: str, text2: str) -> str:
 # --- Streamlit UI ---
 st.set_page_config(page_title="AI Resume Tailor", layout="centered")
 
-st.markdown(
-    """
-    <style>
-    .main {
-        background-color: #f0f2f6;
-        padding: 20px;
-        border-radius: 10px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    }
-    .stButton>button {
-        background-color: #4CAF50;
+# Set background color to black and text to white
+st.markdown("""
+<style>
+    .stApp {
+        background-color: black;
         color: white;
-        border-radius: 8px;
-        padding: 10px 20px;
-        font-size: 16px;
-        border: none;
-        cursor: pointer;
-        transition: background-color 0.3s ease;
     }
-    .stButton>button:hover {
-        background-color: #45a049;
-    }
-    .stTextInput>div>div>input, .stTextArea>div>div>textarea, .stSelectbox>div>div {
-        border-radius: 8px;
-        border: 1px solid #ccc;
-        padding: 10px;
-    }
-    .stFileUploader>div>div>button {
-        background-color: #007bff;
+    /* You might want to style other elements as well to ensure readability */
+    .stTextInput > div > div > input, .stTextArea > div > div > textarea {
         color: white;
-        border-radius: 8px;
-        padding: 10px 15px;
-        font-size: 14px;
-        border: none;
+        background-color: #333;
     }
-    .stFileUploader>div>div>button:hover {
-        background-color: #0056b3;
+    .stMarkdown, .stButton > button {
+        color: white;
     }
-    .score-box {
-        background-color: #e0f7fa; /* Light blue */
-        border-left: 5px solid #00bcd4; /* Teal border */
-        padding: 15px;
-        margin-top: 20px;
-        border-radius: 8px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-    }
-    .score-text {
-        font-size: 2em;
-        font-weight: bold;
-        color: #00796b; /* Darker teal */
-    }
-    </style>
-    """,
-    unsafe_allow_html=True
-)
+</style>
+""", unsafe_allow_html=True)
+
 
 st.title("✨ AI Resume Tailor")
 st.markdown("Upload your resume (TXT or PDF), provide a job title and description, and let AI tailor your resume for the perfect fit!")
@@ -299,6 +262,7 @@ if st.button("Tailor My Resume 🚀"):
                 st.markdown(tailored_resume)
 
                 st.subheader("Changes Highlighted 🔍")
+                # Clean up original and tailored text for diffing (remove empty lines)
                 cleaned_original = "\n".join([line.strip() for line in resume_content.splitlines() if line.strip()])
                 cleaned_tailored = "\n".join([line.strip() for line in tailored_resume.splitlines() if line.strip()])
                 diff_html = generate_diff_html(cleaned_original, cleaned_tailored)
